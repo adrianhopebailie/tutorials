@@ -58,7 +58,7 @@ plugin.connect().then(function () {
     users[user] = { secret, res }
     console.log('user! writing head', user)
     res.writeHead(200, {
-      'X-Pay': [ 1, plugin.getAccount() + '.' + user, base64(secret) ].join(' ')
+      'Pay': [ 1, plugin.getAccount() + '.' + user, base64(secret) ].join(' ')
     })
     // Flush the headers in a first TCP packet:
     res.socket.write(res._header)

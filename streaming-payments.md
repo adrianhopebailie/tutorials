@@ -2,18 +2,18 @@
 
 ## What you need before you start:
 
-* complete the [Letter Shop](./letter-shop/) tutorial first
+* complete the [Letter Shop](./letter-shop) tutorial first
 
 ## What you'll learn:
 
 * convert the proxy from the Letter Shop tutorial into a payment tool
-* using the `X-Pay` header in your shop and your payment tool
+* using the `Pay` header in your shop and your payment tool
 * using the ILP packet
 * streaming payments
 * how to use trustlines to speed things up
 * Bilateral Transfer Protocol (BTP) and its relation to ILP
 
-## The X-Pay Header
+## The Pay Header
 
 We'll change the Letter Shop from the previous tutorial a bit, to `shop2.js`:
 ```js
@@ -64,7 +64,7 @@ plugin.connect().then(function () {
     users[user] = { secret, res }
     console.log('user! writing head', user)
     res.writeHead(200, {
-      'X-Pay': [ 1, plugin.getAccount() + '.' + user, base64(secret) ].join(' ')
+      'Pay': [ 1, plugin.getAccount() + '.' + user, base64(secret) ].join(' ')
     })
     // Flush the headers in a first TCP packet:
     res.socket.write(res._header)
@@ -75,7 +75,7 @@ plugin.connect().then(function () {
 
 Starting with the last part, `http.createServer`, you can see the flow of the http server
 is a bit simpler; when a request comes in it sends headers, and
-then the body will be sent letter-by-letter, as payments come in. The `X-Pay` header contains 3 parts:
+then the body will be sent letter-by-letter, as payments come in. The `Pay` header contains 3 parts:
 
 * amount (in this case, the price of one letter, in XRP)
 * user-specific destination address
@@ -93,7 +93,7 @@ in multiple transfers, but for now, we will only use single-transfer payments.
 
 Whereas in the previous tutorial, the fulfillment was generated randomly, here it's generated deterministically from
 the combination of the shop's interledger address, the user's userId, this payment's paymentId, and the
-conditionSeed (as a buffer) that was sent to this user base64-encoded in the `X-Pay` header, for example:
+conditionSeed (as a buffer) that was sent to this user base64-encoded in the `Pay` header, for example:
 
 ```js
 amount = '1'
@@ -130,7 +130,7 @@ Note that this assumes that the ledger supports adding a memo to the transfer, b
 ## Payment tool
 
 The following is mainly a mix between the `pay.js` and `proxy.js` scripts from the Letter Shop tutorial,
-that can pay for content in reaction to an `X-Pay` header, and then stream that content to the console
+that can pay for content in reaction to an `Pay` header, and then stream that content to the console
 as it comes in. Save it as `tool.js`:
 ```js
 const IlpPacket = require('ilp-packet')
@@ -168,9 +168,9 @@ plugin.connect().then(function () {
   return fetch('http://localhost:8000/')
 }).then(function (inRes) {
   inRes.body.pipe(process.stdout)
-  const payHeaderParts = inRes.headers.get('X-Pay').split(' ')
+  const payHeaderParts = inRes.headers.get('Pay').split(' ')
   console.log(payHeaderParts)
-  // e.g. X-Pay: 1 test.crypto.xrp.asdfaqefq3f.26wrgevaew SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
+  // e.g. Pay: 1 test.crypto.xrp.asdfaqefq3f.26wrgevaew SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
   setInterval(function () {
     const ilpPacketContents = {
       account: payHeaderParts[1] + '.' + (++counter),
@@ -193,7 +193,7 @@ plugin.connect().then(function () {
 })
 ```
 
-As you can see, it parses the `X-Pay` header, and then sends one XRP per 500ms. Try it out!
+As you can see, it parses the `Pay` header, and then sends one XRP per 500ms. Try it out!
 
 ```sh
 $ node ./tool.js
@@ -282,7 +282,7 @@ plugin.connect().then(function () {
     users[user] = { secret, res }
     console.log('user! writing head', user)
     res.writeHead(200, {
-      'X-Pay': [ 1, plugin.getAccount() + '.' + user, base64(secret) ].join(' ')
+      'Pay': [ 1, plugin.getAccount() + '.' + user, base64(secret) ].join(' ')
     })
     // Flush the headers in a first TCP packet:
     res.socket.write(res._header)
@@ -335,9 +335,9 @@ plugin.connect().then(function () {
   return fetch('http://localhost:8000/')
 }).then(function (inRes) {
   inRes.body.pipe(process.stdout)
-  const payHeaderParts = inRes.headers.get('X-Pay').split(' ')
+  const payHeaderParts = inRes.headers.get('Pay').split(' ')
   console.log(payHeaderParts)
-  // e.g. X-Pay: 1 test.crypto.xrp.asdfaqefq3f.26wrgevaew SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
+  // e.g. Pay: 1 test.crypto.xrp.asdfaqefq3f.26wrgevaew SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
   setInterval(function () {
     const ilpPacketContents = {
       account: payHeaderParts[1] + '.' + (++counter),
@@ -369,7 +369,7 @@ node ./tool2.js
 ## What you learned
 
 We used the ILP packet for the first time, talked about connectors, payments as chains of transfers, and used
-the `X-Pay` header, so that the shop could request payment from the tool that connects to it.
+the `Pay` header, so that the shop could request payment from the tool that connects to it.
 
 We added a BTP-enabled ledger to the shop, so that our content consumption tool can receive letters faster.
 

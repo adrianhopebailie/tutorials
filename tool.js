@@ -33,9 +33,9 @@ plugin.connect().then(function () {
   return fetch('http://localhost:8000/')
 }).then(function (inRes) {
   inRes.body.pipe(process.stdout)
-  const payHeaderParts = inRes.headers.get('X-Pay').split(' ')
+  const payHeaderParts = inRes.headers.get('Pay').split(' ')
   console.log(payHeaderParts)
-  // e.g. X-Pay: 1 test.crypto.xrp.asdfaqefq3f.26wrgevaew SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
+  // e.g. Pay: 1 test.crypto.xrp.asdfaqefq3f.26wrgevaew SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
   setInterval(function () {
     const ilpPacketContents = {
       account: payHeaderParts[1] + '.' + (++counter),
