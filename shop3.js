@@ -14,14 +14,14 @@ const plugin = new Plugin({
   },
   incomingSecret: '',
   maxBalance: '1000000000',
-  prefix: 'g.letter-shop.mytrustline.',
+  prefix: 'example.letter-shop.mytrustline.',
   info: {
     currencyScale: 9,
     currencyCode: 'XRP',
-    prefix: 'g.letter-shop.mytrustline.',
+    prefix: 'example.letter-shop.mytrustline.',
     connectors: []
   },
-  _store: {
+  _store: { // in-memory store for demo purposes
     get: (k) => store[k],
     put: (k, v) => { store[k] = v },
     del: (k) => delete store[k]
@@ -43,7 +43,7 @@ plugin.connect().then(function () {
         plugin.fulfillCondition(transfer.id, base64(fulfillment)).then(function () {
           const letter = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ').split('')[(Math.floor(Math.random() * 26))]
           res.write(letter)
-        }, function (err) {
+        }).catch(function (err) {
           console.error(err.message)
         })
       } else {

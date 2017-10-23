@@ -30,7 +30,7 @@ plugin.connect().then(function () {
         plugin.fulfillCondition(transfer.id, base64(fulfillment)).then(function () {
           const letter = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ').split('')[(Math.floor(Math.random() * 26))]
           res.write(letter)
-        }, function (err) {
+        }).catch(function (err) {
           console.error(err.message)
         })
       } else {

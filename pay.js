@@ -34,7 +34,7 @@ plugin.connect().then(function () {
     expiresAt: new Date(new Date().getTime() + 1000000).toISOString()
   }).then(function () {
     console.log('transfer prepared, waiting for fulfillment...')
-  }, function (err) {
+  }).catch(function (err) {
     console.error(err.message)
   })
 })

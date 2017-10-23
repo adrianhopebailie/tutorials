@@ -1,5 +1,5 @@
 const IlpPacket = require('ilp-packet')
-const Plugin = require('ilp-plugin-xrp-escrow')
+const Plugin = require('ilp-plugin-payment-channel-framework')
 const crypto = require('crypto')
 const fetch = require('node-fetch')
 const uuid = require('uuid/v4')
@@ -8,10 +8,7 @@ function hash (secret) { return crypto.createHash('sha256').update(secret).diges
 function hmac (secret, input) { return crypto.createHmac('sha256', secret).update(input).digest() }
 
 const plugin = new Plugin({
-  secret: 'sndb5JDdyWiHZia9zv44zSr2itRy1',
-  account: 'rGtqDAJNTDMLaNNfq1RVYgPT8onFMj19Aj',
-  server: 'wss://s.altnet.rippletest.net:51233',
-  prefix: 'test.crypto.xrp.'
+  server: 'btp+ws://:@localhost:9000/'
 })
 
 let counter = 0
@@ -24,12 +21,14 @@ function sendTransfer (obj) {
   // amount
   // executionCondition
   obj.expiresAt = new Date(new Date().getTime() + 1000000).toISOString()
+  // console.log('calling sendTransfer!',  obj)
   return plugin.sendTransfer(obj).then(function () {
     return obj.id
   })
 }
 
 plugin.connect().then(function () {
+  console.log('plugin connected')
   return fetch('http://localhost:8000/')
 }).then(function (inRes) {
   inRes.body.pipe(process.stdout)
@@ -51,8 +50,8 @@ plugin.connect().then(function () {
       ilp: base64(IlpPacket.serializeIlpPayment(ilpPacketContents))
     }).then(function () {
       // console.log('transfer sent')
-    }, function (err) {
+    }).catch(function (err) {
       console.error(err.message)
     })
-  }, 500)
+  }, 1)
 })

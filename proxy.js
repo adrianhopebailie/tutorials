@@ -53,7 +53,7 @@ plugin.connect().then(function () {
             }
           }
           plugin.addListener('outgoing_fulfill', listenerForThisTransfer)
-        }, function (err) {
+        }).catch(function (err) {
           console.error(err.message)
         })
       } else {
